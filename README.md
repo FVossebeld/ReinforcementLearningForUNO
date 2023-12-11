@@ -1,5 +1,7 @@
 # UnoBot
 A reinforcement learning based agent trained to play the card game Uno (https://en.wikipedia.org/wiki/Uno_(card_game)). The project was implemented using Python with various modules for efficient arrays, machine learning and GUIs. Q-learning agents are trained inside the game environment and the resulting model can be analyzed inside a graphical version of the game including AI and human players, as well as a naive baseline algorithm.
+## Installing the game
+To install the requirements for the game, run `pip install -r requirements.txt` inside the project folder. The game can then be started by running `python play.py AI AI` inside the project folder.
 ## Training
 To train the Q-model, simply start the train.py file with `python train.py` (to continue training an existing model, run `python train.py path/to/model.h5`). The model architecture and hyperparameters can be adjusted in the *agent.py* file. Further parameters regarding the Q-learning algorithm can be tuned inside the *train.py* file. Periodical model checkpoints (frequency adjustable in *agent.py*) will be saved under *models/\<timestamp>/model-\<epoch>.h5* and a tensorboard-compatible log file will be stored inside a *logs/\<timestamp>* folder.
 ## Playing
