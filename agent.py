@@ -3,7 +3,7 @@ import random
 import collections
 import numpy as np
 import tensorflow as tf
-from tensorboard import TensorflowLogger
+from my_tensorboard import TensorflowLogger
 from keras import models, layers, optimizers
 
 class UnoAgent:
@@ -57,47 +57,50 @@ class UnoAgent:
     def train(self):
         counter = 0
         while True:
+            # Ensure there is enough data in replay memory
             if len(self.replay_memory) < self.BATCH_SIZE:
-                # wait until enough data is collected
                 continue
 
-            # get minibatch from replay memory
-            minibatch = np.array(random.sample(self.replay_memory, self.BATCH_SIZE))
+            # Sample a minibatch from the replay memory
+            minibatch = random.sample(self.replay_memory, self.BATCH_SIZE)
 
-            # get states from minibatch
-            states = np.array(list(minibatch[:,0]))
-            # predict Q values for all states in the minibatch
+            # Separate states, actions, rewards, next_states, and dones
+            states = np.array([transition[0] for transition in minibatch])
+            actions = np.array([transition[1] for transition in minibatch])
+            rewards = np.array([transition[2] for transition in minibatch])
+            next_states = np.array([transition[3] for transition in minibatch])
+            dones = np.array([transition[4] for transition in minibatch])
+
+            # Predict Q-values for starting states
             q_values = self.model.predict(states)
-            # estimate the maximum future reward
-            max_future_q = np.max(self.model.predict(np.array(list(minibatch[:,3]))), axis=1)
+            # Predict future Q-values for next states
+            future_q_values = self.model.predict(next_states)
+            # Max future Q value for each next state
+            max_future_q = np.max(future_q_values, axis=1)
 
-            for i in range(len(minibatch)):
-                action, reward, done = minibatch[i,1], minibatch[i,2], minibatch[i,4]
+            # Update Q-values for each action taken
+            for i in range(self.BATCH_SIZE):
+                if dones[i]:
+                    q_values[i, actions[i]] = rewards[i]
+                else:
+                    q_values[i, actions[i]] +=  self.DISCOUNT_FACTOR * max_future_q[i]
 
-                # update the Q value of the chosen action
-                q_values[i,action] = reward
-                if not done:
-                    # add the discounted maximum future reward if the current transition was not the last in an episode
-                    q_values[i,action] += self.DISCOUNT_FACTOR * max_future_q[i]
-
-            # train the model on the minibatch
+            # Train the model on the minibatch
             hist = self.target_model.fit(x=states, y=q_values, batch_size=self.BATCH_SIZE, verbose=0)
             self.logger.scalar('loss', hist.history['loss'][0])
-            self.logger.scalar('acc', hist.history['acc'][0])
+            self.logger.scalar('acc',  hist.history['acc'][0])  # Make sure this key matches your model's compile metrics
             self.logger.flush()
 
             counter += 1
+            # Update target model
             if counter % self.MODEL_UPDATE_FREQUENCY == 0:
-                # update the predictor model
                 self.model.set_weights(self.target_model.get_weights())
                 if not self.initialized:
                     print('Agent initialized')
                     self.initialized = True
 
+            # Save model periodically
             if counter % self.MODEL_SAVE_FREQUENCY == 0:
-                # create model folder
                 folder = f'models/{self.logger.timestamp}'
-                if not os.path.exists(folder):
-                    os.makedirs(folder)
-                # save model
+                os.makedirs(folder, exist_ok=True)
                 self.model.save(f'{folder}/model-{counter}.h5')
