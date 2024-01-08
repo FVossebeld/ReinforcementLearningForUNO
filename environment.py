@@ -3,9 +3,9 @@ import numpy as np
 
 class UnoEnvironment:
 
-    ILLEGAL_MOVE_REWARD = -2
-    DRAW_CARD_REWARD = -1
-    CARD_PLAYED_REWARD = 2
+    ILLEGAL_MOVE_REWARD = 0
+    DRAW_CARD_REWARD = 0
+    CARD_PLAYED_REWARD = 0
     PLAYER_FINISHED_REWARD = 10
 
     NUM_COLOURS = 4
@@ -97,6 +97,9 @@ class UnoEnvironment:
 
         if player_status == -1:
             reward += self.ILLEGAL_MOVE_REWARD
+            print("Illegal move detected: ")
+            print(played_card[1])
+            print(action)
             self._remove_player(player)
         elif player_status == 0:
             reward += self.DRAW_CARD_REWARD
@@ -200,6 +203,14 @@ class UnoEnvironment:
 
     def players_left(self):
         return len(self.players)
+
+    def get_legal_cards(self):
+        legal_moves = np.zeros(len(self.CARD_TYPES)+1)
+        for i in range(len(self.CARD_TYPES)):
+            legal_moves[i] = self.legal_move(i)
+        legal_moves[0] = 0 #zero is an illegal move
+        return legal_moves
+
 
 
 class UnoPlayer:

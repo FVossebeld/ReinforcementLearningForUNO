@@ -51,8 +51,9 @@ class UnoAgent:
         self.replay_memory.append(transition)
 
     def predict(self, state):
-        # return the index of the action with the highest predicted Q value
-        return np.argmax(self.model.predict(np.array(state).reshape(-1, *state.shape))[0])
+        print("predicting")
+        return self.model.predict(np.array(state).reshape(-1, *state.shape))[0]
+
 
     def train(self):
         counter = 0
@@ -88,7 +89,7 @@ class UnoAgent:
             # Train the model on the minibatch
             hist = self.target_model.fit(x=states, y=q_values, batch_size=self.BATCH_SIZE, verbose=0)
             self.logger.scalar('loss', hist.history['loss'][0])
-            self.logger.scalar('acc',  hist.history['acc'][0])  # Make sure this key matches your model's compile metrics
+            self.logger.scalar('accuracy',  hist.history['accuracy'][0])  # Make sure this key matches your model's compile metrics
             self.logger.flush()
 
             counter += 1
