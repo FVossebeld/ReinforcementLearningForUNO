@@ -3,9 +3,9 @@ import numpy as np
 
 class UnoEnvironment:
 
-    ILLEGAL_MOVE_REWARD = -2
+    ILLEGAL_MOVE_REWARD = 0
     DRAW_CARD_REWARD = -1
-    CARD_PLAYED_REWARD = 2
+    CARD_PLAYED_REWARD = 0
     PLAYER_FINISHED_REWARD = 10
 
     NUM_COLOURS = 4
