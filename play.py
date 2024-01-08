@@ -108,7 +108,9 @@ while not done:
             else:
                 # AI player
                 state = env.get_state()
-                action = np.argmax(model.predict(state.reshape((1, -1)))[0])
+                reshaped_state = state.reshape((1, -1))
+                prediction = model.predict(reshaped_state)[0]
+                action = np.argmax(prediction)
 
                 # make random move if the AI selected an illegal move
                 if not env.legal_move(action):

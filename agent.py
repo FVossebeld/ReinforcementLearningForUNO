@@ -1,13 +1,13 @@
+from my_tensorboard import CometLogger
 import os
 import random
 import collections
 import numpy as np
 import tensorflow as tf
-from my_tensorboard import TensorflowLogger
 from keras import models, layers, optimizers
 
-class UnoAgent:
 
+class UnoAgent:
     REPLAY_MEMORY_SIZE = 10000
     BATCH_SIZE = 512
     DISCOUNT_FACTOR = 0.7
@@ -17,8 +17,7 @@ class UnoAgent:
     def __init__(self, state_size, action_count, model_path=None):
         print('Initializing agent...')
         self.initialized = False
-        self.logger = TensorflowLogger('logs')
-
+        self.logger = CometLogger(api_key="HRHycl4Fy5Dt581uHTYKXEBwU", project_name="uno-bot", )
         if model_path is None:
             print('Creating model...')
             # initialize the prediction model and a clone of it, the target model
@@ -52,7 +51,9 @@ class UnoAgent:
 
     def predict(self, state):
         # return the index of the action with the highest predicted Q value
-        return np.argmax(self.model.predict(np.array(state).reshape(-1, *state.shape))[0])
+        # print("Predicting")
+        prediction = self.model.predict(np.array(state).reshape(-1, *state.shape), verbose=0)[0]
+        return prediction
 
     def train(self):
         counter = 0
@@ -65,11 +66,11 @@ class UnoAgent:
             minibatch = random.sample(self.replay_memory, self.BATCH_SIZE)
 
             # Separate states, actions, rewards, next_states, and dones
-            states = np.array([transition[0] for transition in minibatch])
-            actions = np.array([transition[1] for transition in minibatch])
-            rewards = np.array([transition[2] for transition in minibatch])
-            next_states = np.array([transition[3] for transition in minibatch])
-            dones = np.array([transition[4] for transition in minibatch])
+            states = np.array([transition[0] for transition in minibatch]) # e.g. [[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0, .. ], ...]
+            actions = np.array([transition[1] for transition in minibatch]) # e.g.  [ 3, 4, 5, 6, 7, 8, ...]
+            rewards = np.array([transition[2] for transition in minibatch]) # e.g.  [ 20, 14, -5, -10, 0, 0, ...]
+            next_states = np.array([transition[3] for transition in minibatch]) # e.g. [[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0, .. ], ...]
+            dones = np.array([transition[4] for transition in minibatch]) # e.g. [ True, False, False, False, False, False, ...]
 
             # Predict Q-values for starting states
             q_values = self.model.predict(states)
@@ -83,17 +84,18 @@ class UnoAgent:
                 if dones[i]:
                     q_values[i, actions[i]] = rewards[i]
                 else:
-                    q_values[i, actions[i]] +=  self.DISCOUNT_FACTOR * max_future_q[i]
+                    q_values[i, actions[i]] += self.DISCOUNT_FACTOR * max_future_q[i]
 
             # Train the model on the minibatch
             hist = self.target_model.fit(x=states, y=q_values, batch_size=self.BATCH_SIZE, verbose=0)
             self.logger.scalar('loss', hist.history['loss'][0])
-            self.logger.scalar('acc',  hist.history['acc'][0])  # Make sure this key matches your model's compile metrics
-            self.logger.flush()
+            self.logger.scalar('acc',
+                               hist.history['accuracy'][0])  # Make sure this key matches your model's compile metrics
+            # self.logger.flush()
 
             counter += 1
             # Update target model
-            if counter % self.MODEL_UPDATE_FREQUENCY == 0:
+            if counter % self.MODEL_UPDATE_FREQUENCY == 0:  # Every 20 steps update target model
                 self.model.set_weights(self.target_model.get_weights())
                 if not self.initialized:
                     print('Agent initialized')

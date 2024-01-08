@@ -123,7 +123,7 @@ class UnoEnvironment:
 
     def get_state(self):
         # all cards excluding wild card and 4+ card
-        coloured_cards = np.all(self.CARD_TYPES[:-2] == self.top_card, axis=1).astype(np.cfloat)
+        coloured_cards = np.all(self.CARD_TYPES[:-2] == self.top_card, axis=1).astype(np.float64)
 
         # one hot vector indicating colour of wild card on top of the stack
         wild_card = np.zeros(self.NUM_COLOURS)
@@ -201,6 +201,12 @@ class UnoEnvironment:
     def players_left(self):
         return len(self.players)
 
+    def get_legal_cards(self, player=None):
+        cards = np.arange(len(self.CARD_TYPES) + 1) # +1 for drawing a card
+        vectorized_legal_move = np.vectorize(self.legal_move)
+        legal_actions = vectorized_legal_move(cards)
+        return legal_actions
+
 
 class UnoPlayer:
 
@@ -208,7 +214,7 @@ class UnoPlayer:
         self.game = game
 
         # randomly initialize the player's hand
-        self.cards = np.zeros(len(self.game.CARD_TYPES), dtype=np.cfloat)
+        self.cards = np.zeros(len(self.game.CARD_TYPES), dtype=np.float64)
         self.draw_cards(num_cards)
 
     def draw_cards(self, count):

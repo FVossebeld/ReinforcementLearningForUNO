@@ -6,15 +6,16 @@ from environment import UnoEnvironment
 
 PLAYER_COUNT = 4
 COLLECTOR_THREADS = 2
-INITIAL_EPSILON = 1
+INITIAL_EPSILON = 0.5
 EPSILON_DECAY = 0.999999
 MIN_EPSILON = 0.01
+
 
 def run(agent):
     # initialize environment
     epsilon = INITIAL_EPSILON
     env = UnoEnvironment(PLAYER_COUNT)
-
+    games_played = 0
     counter = 0
     while True:
         done = False
@@ -23,12 +24,23 @@ def run(agent):
         rewards = []
         # run one episode
         while not done:
-            if state is None or np.random.sample() < epsilon or not agent.initialized:
+            random_number = np.random.sample()
+            if state is None or random_number < epsilon or not agent.initialized:
                 # choose a random action
                 action = np.random.randint(env.action_count())
+                if not env.legal_move(action):
+                    while not env.legal_move(action):
+                        action = np.random.randint(env.action_count())
             else:
                 # choose an action from the policy
-                action = agent.predict(state)
+                model_prediction = agent.predict(state)
+                allowed_actions = env.get_legal_cards()
+                prediction = model_prediction * allowed_actions  # mask illegal moves
+                action = np.argmax(prediction)
+                if not env.legal_move(action):
+                    print('Illegal move selected, playing random card.')
+                    while not env.legal_move(action):
+                        action = np.random.randint(env.action_count())
 
             new_state, reward, done, _ = env.step(action)
             rewards.append(reward)
@@ -44,13 +56,16 @@ def run(agent):
                 epsilon = max(epsilon, MIN_EPSILON)
 
         # log metrics
+        games_played += 1
         agent.logger.scalar('cumulative_reward', np.sum(rewards))
         agent.logger.scalar('mean_reward', np.mean(rewards))
         agent.logger.scalar('game_length', len(rewards))
         agent.logger.scalar('epsilon', epsilon)
 
         # reset the environment for the next episode
+        print (f'Game {games_played} finished after {len(rewards)} steps with a cumulative reward of {np.sum(rewards)}.')
         env.reset()
+
 
 if __name__ == '__main__':
     model_path = None
