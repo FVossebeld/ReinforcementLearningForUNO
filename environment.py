@@ -126,7 +126,7 @@ class UnoEnvironment:
 
     def get_state(self):
         # all cards excluding wild card and 4+ card
-        coloured_cards = np.all(self.CARD_TYPES[:-2] == self.top_card, axis=1).astype(np.cfloat)
+        coloured_cards = np.all(self.CARD_TYPES[:-2] == self.top_card, axis=1).astype(np.float64)
 
         # one hot vector indicating colour of wild card on top of the stack
         wild_card = np.zeros(self.NUM_COLOURS)
@@ -219,7 +219,7 @@ class UnoPlayer:
         self.game = game
 
         # randomly initialize the player's hand
-        self.cards = np.zeros(len(self.game.CARD_TYPES), dtype=np.cfloat)
+        self.cards = np.zeros(len(self.game.CARD_TYPES), dtype=np.float64)
         self.draw_cards(num_cards)
 
     def draw_cards(self, count):

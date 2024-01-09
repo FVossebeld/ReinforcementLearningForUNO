@@ -52,7 +52,7 @@ class UnoAgent:
 
     def predict(self, state):
         print("predicting")
-        return self.model.predict(np.array(state).reshape(-1, *state.shape))[0]
+        return self.model.predict(np.array(state).reshape(-1, *state.shape), verbose=None)[0]
 
 
     def train(self):
