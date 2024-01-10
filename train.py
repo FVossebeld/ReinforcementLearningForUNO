@@ -6,7 +6,7 @@ from environment import UnoEnvironment
 import random
 
 PLAYER_COUNT = 4
-COLLECTOR_THREADS = 2
+COLLECTOR_THREADS = 8
 INITIAL_EPSILON = 0.8
 EPSILON_DECAY = 0.999999
 MIN_EPSILON = 0.01
