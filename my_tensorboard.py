@@ -1,13 +1,15 @@
-import tensorflow as tf
+from comet_ml import Experiment
 from datetime import datetime
 
-
-class TensorflowLogger:
-    def __init__(self, log_dir):
+class CometLogger:
+    def __init__(self, api_key, project_name):
         # Initialize the logger
         self.timestamp = datetime.now().strftime('%y-%m-%d_%H-%M-%S')
-        self.log_dir = log_dir
         self.variable_steps = {}
+        self.experiment = Experiment(
+            api_key=api_key,
+            project_name=project_name,
+        )
 
     def scalar(self, name, value, step=None):
         # Get the step value for the current scalar
@@ -19,12 +21,10 @@ class TensorflowLogger:
         else:
             self.variable_steps[name] = step
 
-        # Create the summary and write it
-        with tf.summary.create_file_writer(self.log_dir + '/summary_' + self.timestamp).as_default():
-            tf.summary.scalar(name, value, step=step)
-            tf.summary.flush()
+        # Log the metric
+        self.experiment.log_metric(name, value, step=step)
 
     def flush(self):
-        # Flush the file writer
-        with tf.summary.create_file_writer(self.log_dir + '/summary_' + self.timestamp).as_default():
-            tf.summary.flush()
+        # End the experiment when you are done logging
+        self.experiment.end()
+

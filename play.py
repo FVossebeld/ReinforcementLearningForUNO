@@ -108,7 +108,26 @@ while not done:
             else:
                 # AI player
                 state = env.get_state()
-                action = np.argmax(model.predict(state.reshape((1, -1)))[0])
+                predicted_Q = model.predict(state.reshape((1, -1)))[0] * env.get_legal_cards()
+
+                if np.sum(predicted_Q) == 0:  # When all legal moves have a Q value of 0
+                    print("All legal moves have Q-values of 0. Choosing a random action.")
+                    # Get all possible actions
+                    all_actions = range(env.action_count())
+                    # Filter to get only legal actions
+                    legal_actions = [action for action in all_actions if env.legal_move(action)]
+                    # Randomly choose from the legal actions
+                    action = np.random.choice(legal_actions)
+                else:
+                    action = np.argmax(predicted_Q)
+                if action == 0 and not env.legal_move(action):  # When an illegal action of zero is chosen
+                    # choose a random action
+                    # Get all possible actions
+                    all_actions = range(env.action_count())
+                    # Filter to get only legal actions
+                    legal_actions = [action for action in all_actions if env.legal_move(action)]
+                    # Randomly choose from the legal actions
+                    action = np.random.choice(legal_actions)
 
                 # make random move if the AI selected an illegal move
                 if not env.legal_move(action):
