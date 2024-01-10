@@ -5,7 +5,7 @@ import numpy as np
 from environment import UnoEnvironment
 from renderer import *
 
-MODEL_PATH = 'example_model.h5'
+MODEL_PATH = 'model-600.h5'
 
 MOVE_TIME = 0
 SHOW_NON_HUMAN_CARDS = False
