@@ -1,9 +1,9 @@
+from my_tensorboard import CometLogger
 import os
 import random
 import collections
 import numpy as np
 import tensorflow as tf
-from my_tensorboard import TensorflowLogger
 from keras import models, layers, optimizers
 
 class UnoAgent:
@@ -17,7 +17,7 @@ class UnoAgent:
     def __init__(self, state_size, action_count, model_path=None):
         print('Initializing agent...')
         self.initialized = False
-        self.logger = TensorflowLogger('logs')
+        self.logger = CometLogger(api_key="HRHycl4Fy5Dt581uHTYKXEBwU", project_name="uno-bot",)
 
         if model_path is None:
             print('Creating model...')
@@ -51,8 +51,9 @@ class UnoAgent:
         self.replay_memory.append(transition)
 
     def predict(self, state):
-        # return the index of the action with the highest predicted Q value
-        return np.argmax(self.model.predict(np.array(state).reshape(-1, *state.shape))[0])
+        print("predicting")
+        return self.model.predict(np.array(state).reshape(-1, *state.shape), verbose=None)[0]
+
 
     def train(self):
         counter = 0
@@ -88,8 +89,7 @@ class UnoAgent:
             # Train the model on the minibatch
             hist = self.target_model.fit(x=states, y=q_values, batch_size=self.BATCH_SIZE, verbose=0)
             self.logger.scalar('loss', hist.history['loss'][0])
-            self.logger.scalar('acc',  hist.history['acc'][0])  # Make sure this key matches your model's compile metrics
-            self.logger.flush()
+            self.logger.scalar('accuracy',  hist.history['accuracy'][0])  # Make sure this key matches your model's compile metrics
 
             counter += 1
             # Update target model
