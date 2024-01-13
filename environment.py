@@ -21,7 +21,7 @@ class UnoEnvironment:
 
     def reset(self):
         # initialize players
-        self.players = [UnoPlayer(self, num_cards=7) for _ in range(self.player_count)]
+        self.players = [UnoPlayer(self, index=i, num_cards=7) for i in range(self.player_count)]
 
         # initialize card stack
         self.top_card = self.CARD_TYPES[np.random.randint(len(self.CARD_TYPES))]
@@ -32,6 +32,11 @@ class UnoEnvironment:
         # initialize turns
         self.turn = 0
         self.turn_direction = 1
+
+    def  current_player(self):
+        test = self.players[self.turn]
+        test2 = test.get_index()
+        return test2
 
     def step(self, action):
         reward = 0
@@ -215,9 +220,9 @@ class UnoEnvironment:
 
 class UnoPlayer:
 
-    def __init__(self, game, num_cards=7):
+    def __init__(self, game, index,  num_cards=7):
         self.game = game
-
+        self.index = index
         # randomly initialize the player's hand
         self.cards = np.zeros(len(self.game.CARD_TYPES), dtype=np.float64)
         self.draw_cards(num_cards)
@@ -246,3 +251,6 @@ class UnoPlayer:
 
     def __repr__(self):
         return f'UnoPlayer({self.num_cards()})'
+
+    def get_index(self):
+        return self.index
