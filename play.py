@@ -108,7 +108,7 @@ while not done:
             else:
                 # AI player
                 state = env.get_state()
-                predicted_Q = model.predict(state.reshape((1, -1)))[0] * env.get_legal_cards()
+                predicted_Q = model.predict_special(MODEL_PATH[env.current_player() % 4],state.reshape((1, -1)))[0] * env.get_legal_cards()
 
                 if np.sum(predicted_Q) == 0:  # When all legal moves have a Q value of 0
                     print("All legal moves have Q-values of 0. Choosing a random action.")
