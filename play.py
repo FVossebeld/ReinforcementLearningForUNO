@@ -4,8 +4,9 @@ import pygame
 import numpy as np
 from environment import UnoEnvironment
 from renderer import *
+from keras.models import load_model
 
-MODEL_PATH = 'model-600.h5'
+MODEL_PATH = ['models/models/24-01-09_10-29-43/model-1000.h5','models/models/24-01-09_10-29-43/model-2000.h5', 'models/models/24-01-09_10-29-43/model-4000.h5', 'models/models/24-01-09_10-29-43/model-6000.h5']
 
 MOVE_TIME = 0
 SHOW_NON_HUMAN_CARDS = False
@@ -58,8 +59,6 @@ font_small = pygame.font.SysFont(FONT, FONT_SIZE_SMALL)
 if 0 in player_types:
     if MODEL_PATH is not None:
         print('Loading model...')
-        from keras.models import load_model
-        model = load_model(MODEL_PATH)
     else:
         print('Please specify a model path.')
         exit()
@@ -108,7 +107,8 @@ while not done:
             else:
                 # AI player
                 state = env.get_state()
-                predicted_Q = model.predict_special(MODEL_PATH[env.current_player() % 4],state.reshape((1, -1)))[0] * env.get_legal_cards()
+                model = load_model(MODEL_PATH[env.current_player() % len(MODEL_PATH)])
+                predicted_Q = model.predict(state.reshape((1, -1)))[0] * env.get_legal_cards()
 
                 if np.sum(predicted_Q) == 0:  # When all legal moves have a Q value of 0
                     print("All legal moves have Q-values of 0. Choosing a random action.")
