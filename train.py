@@ -15,13 +15,13 @@ def run(agent):
     # initialize environment
     epsilon = INITIAL_EPSILON
     env = UnoEnvironment(PLAYER_COUNT)
-
+    
     model1 = keras.models.load_model('Agents/Agent_B.h5')
     model2 = keras.models.load_model('Agents/Agent_C.h5')
     model3 = keras.models.load_model('Agents/Agent_D.h5')
 
-    # # Training Scenario 2:
-    # models = [model1, model2, model3]
+    # Initialize model array
+    models = [model1, model2, model3]
 
     counter = 0
     while True:
