@@ -45,8 +45,7 @@ class UnoAgent:
         model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
         return model
 
-    def predict_special(self, model_path, state):
-        temp_model = models.load_model(model_path)
+    def predict_special(self, temp_model, state):
         print("special predicting")
         return temp_model.predict(np.array(state).reshape(-1, *state.shape), verbose=None)[0]
 
