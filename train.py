@@ -50,7 +50,6 @@ def run(agent):
                 action = np.random.choice(legal_actions)
             else:
                 # choose an action from the policy.
-                # Currently, hardcoded for four players. Would be nice to make it more dynamic.
                 if active_player == 0:
                     predicted_Q = agent.predict(state) * env.get_legal_cards()
                 else:
