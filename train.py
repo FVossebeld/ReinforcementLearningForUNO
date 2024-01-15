@@ -6,8 +6,8 @@ from environment import UnoEnvironment
 import random
 
 PLAYER_COUNT = 4
-COLLECTOR_THREADS = 8
-INITIAL_EPSILON = 0.8
+COLLECTOR_THREADS = 4
+INITIAL_EPSILON = 1
 EPSILON_DECAY = 0.999999
 MIN_EPSILON = 0.01
 
@@ -25,6 +25,8 @@ def run(agent):
         rewards = []
         # run one episode
         while not done:
+
+            test = env.current_player()
             if state is None or np.random.sample() < epsilon or not agent.initialized:
                 # choose a random action
                 # Get all possible actions
@@ -34,12 +36,20 @@ def run(agent):
                 # Randomly choose from the legal actions
                 action = np.random.choice(legal_actions)
             else:
-                # choose an action from the policy
-                predicted_Q = agent.predict(state) * env.get_legal_cards()
-                
-                # # extra factor to decrease the odds of drawing a card:
-                # predicted_Q[len(predicted_Q)] *= 0.2
-       
+                # choose an action from the policy.
+                # Currently, hardcoded for four players. Would be nice to make it more dynamic.
+                if test == 0:
+                    predicted_Q = agent.predict(state) * env.get_legal_cards()
+                elif test==1:
+                    # agent.update_model_path('model-600.h5')
+                    predicted_Q = agent.predict_special('model-600.h5', state) * env.get_legal_cards()
+                elif test==2:
+                    # agent.update_model_path('models/models/model-19000.h5')
+                    predicted_Q = agent.predict_special('models/models/24-01-09_10-29-43/model-1000.h5', state) * env.get_legal_cards()
+                elif test==3:
+                    # agent.update_model_path('models/models/model-27000.h5')
+                    predicted_Q = agent.predict_special('models/models/24-01-09_10-29-43/model-2000.h5', state) * env.get_legal_cards()
+
                 if np.sum(predicted_Q) == 0: # When all legal moves have a Q value of 0
                     print("All legal moves have Q-values of 0. Choosing a random action.")
                     # Get all possible actions
@@ -63,7 +73,7 @@ def run(agent):
             new_state, reward, done, _ = env.step(action)
             rewards.append(reward)
 
-            if state is not None:
+            if state is not None and test==0:
                 # include the current transition in the replay memory
                 agent.update_replay_memory((state, action, reward, new_state, done))
             state = new_state

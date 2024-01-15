@@ -3,7 +3,6 @@ import os
 import random
 import collections
 import numpy as np
-import tensorflow as tf
 from keras import models, layers, optimizers
 
 class UnoAgent:
@@ -45,6 +44,11 @@ class UnoAgent:
         # compile the model
         model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
         return model
+
+    def predict_special(self, model_path, state):
+        temp_model = models.load_model(model_path)
+        print("special predicting")
+        return temp_model.predict(np.array(state).reshape(-1, *state.shape), verbose=None)[0]
 
     def update_replay_memory(self, transition):
         # add a state transition to the replay memory
