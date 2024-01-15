@@ -9,9 +9,9 @@ class UnoAgent:
 
     REPLAY_MEMORY_SIZE = 10000
     BATCH_SIZE = 512
-    DISCOUNT_FACTOR = 0.7
+    DISCOUNT_FACTOR = 0.95
     MODEL_UPDATE_FREQUENCY = 20
-    MODEL_SAVE_FREQUENCY = 1000
+    MODEL_SAVE_FREQUENCY = 500
 
     def __init__(self, state_size, action_count, model_path=None):
         print('Initializing agent...')

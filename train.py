@@ -6,9 +6,9 @@ from agent import UnoAgent
 from environment import UnoEnvironment
 
 PLAYER_COUNT = 4
-COLLECTOR_THREADS = 4
+COLLECTOR_THREADS = 1
 INITIAL_EPSILON = 1
-EPSILON_DECAY = 0.999999
+EPSILON_DECAY = 0.999975
 MIN_EPSILON = 0.01
 
 def run(agent):
@@ -16,9 +16,9 @@ def run(agent):
     epsilon = INITIAL_EPSILON
     env = UnoEnvironment(PLAYER_COUNT)
 
-    model1 = keras.models.load_model('model-600.h5')
-    model2 = keras.models.load_model('models/models/24-01-09_10-29-43/model-1000.h5')
-    model3 = keras.models.load_model('models/models/24-01-09_10-29-43/model-2000.h5')
+    model1 = keras.models.load_model('Agents/Agent_B.h5')
+    model2 = keras.models.load_model('Agents/Agent_C.h5')
+    model3 = keras.models.load_model('Agents/Agent_D.h5')
     models = [model1, model2, model3]
 
     counter = 0
