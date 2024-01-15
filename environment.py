@@ -34,9 +34,9 @@ class UnoEnvironment:
         self.turn_direction = 1
 
     def  current_player(self):
-        test = self.players[self.turn]
-        test2 = test.get_index()
-        return test2
+        players = self.players[self.turn]
+        active_player = players.get_index()
+        return active_player
 
     def step(self, action):
         reward = 0

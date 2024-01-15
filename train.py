@@ -19,18 +19,27 @@ def run(agent):
     model1 = keras.models.load_model('Agents/Agent_B.h5')
     model2 = keras.models.load_model('Agents/Agent_C.h5')
     model3 = keras.models.load_model('Agents/Agent_D.h5')
-    models = [model1, model2, model3]
+
+    # # Training Scenario 2:
+    # models = [model1, model2, model3]
 
     counter = 0
     while True:
         done = False
         state = None
 
+        # # Training Scenario 3: Randomly choose a model for the opponents each game
+        # opponent_model = np.random.choice([model1, model2, model3])
+        # models = [opponent_model] * 3  # Use the chosen model for all three opponents
+
+        # # Training Scenario 4: Randomly choose a model for each opponent
+        # models = [np.random.choice(all_models) for _ in range(3)]
+
         rewards = []
         # run one episode
         while not done:
 
-            test = env.current_player()
+            active_player = env.current_player()
             if state is None or np.random.sample() < epsilon or not agent.initialized:
                 # choose a random action
                 # Get all possible actions
@@ -42,17 +51,10 @@ def run(agent):
             else:
                 # choose an action from the policy.
                 # Currently, hardcoded for four players. Would be nice to make it more dynamic.
-                if test == 0:
+                if active_player == 0:
                     predicted_Q = agent.predict(state) * env.get_legal_cards()
-                elif test==1:
-                    # agent.update_model_path('model-600.h5')
-                    predicted_Q = agent.predict_special(models[0], state) * env.get_legal_cards()
-                elif test==2:
-                    # agent.update_model_path('models/models/model-19000.h5')
-                    predicted_Q = agent.predict_special(models[1], state) * env.get_legal_cards()
-                elif test==3:
-                    # agent.update_model_path('models/models/model-27000.h5')
-                    predicted_Q = agent.predict_special(models[2], state) * env.get_legal_cards()
+                else:
+                    predicted_Q = agent.predict_special(models[active_player - 1], state) * env.get_legal_cards()
 
                 if np.sum(predicted_Q) == 0: # When all legal moves have a Q value of 0
                     print("All legal moves have Q-values of 0. Choosing a random action.")
@@ -77,7 +79,7 @@ def run(agent):
             new_state, reward, done, _ = env.step(action)
             rewards.append(reward)
 
-            if state is not None and test==0:
+            if state is not None and active_player==0:
                 # include the current transition in the replay memory
                 agent.update_replay_memory((state, action, reward, new_state, done))
             state = new_state
