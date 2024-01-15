@@ -32,8 +32,8 @@ def run(agent):
         # opponent_model = np.random.choice([model1, model2, model3])
         # models = [opponent_model] * 3  # Use the chosen model for all three opponents
 
-        # # Training Scenario 4: Randomly choose a model for each opponent
-        # models = [np.random.choice(all_models) for _ in range(3)]
+        # Training Scenario 4: Randomly choose a model for each opponent
+        models = [np.random.choice(models) for _ in range(3)]
 
         rewards = []
         # run one episode
