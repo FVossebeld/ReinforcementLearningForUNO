@@ -1,9 +1,9 @@
 import sys
 import threading
 import numpy as np
+import keras
 from agent import UnoAgent
 from environment import UnoEnvironment
-import random
 
 PLAYER_COUNT = 4
 COLLECTOR_THREADS = 4
@@ -11,11 +11,15 @@ INITIAL_EPSILON = 1
 EPSILON_DECAY = 0.999999
 MIN_EPSILON = 0.01
 
-
 def run(agent):
     # initialize environment
     epsilon = INITIAL_EPSILON
     env = UnoEnvironment(PLAYER_COUNT)
+
+    model1 = keras.models.load_model('model-600.h5')
+    model2 = keras.models.load_model('models/models/24-01-09_10-29-43/model-1000.h5')
+    model3 = keras.models.load_model('models/models/24-01-09_10-29-43/model-2000.h5')
+    models = [model1, model2, model3]
 
     counter = 0
     while True:
@@ -42,13 +46,13 @@ def run(agent):
                     predicted_Q = agent.predict(state) * env.get_legal_cards()
                 elif test==1:
                     # agent.update_model_path('model-600.h5')
-                    predicted_Q = agent.predict_special('model-600.h5', state) * env.get_legal_cards()
+                    predicted_Q = agent.predict_special(models[0], state) * env.get_legal_cards()
                 elif test==2:
                     # agent.update_model_path('models/models/model-19000.h5')
-                    predicted_Q = agent.predict_special('models/models/24-01-09_10-29-43/model-1000.h5', state) * env.get_legal_cards()
+                    predicted_Q = agent.predict_special(models[1], state) * env.get_legal_cards()
                 elif test==3:
                     # agent.update_model_path('models/models/model-27000.h5')
-                    predicted_Q = agent.predict_special('models/models/24-01-09_10-29-43/model-2000.h5', state) * env.get_legal_cards()
+                    predicted_Q = agent.predict_special(models[2], state) * env.get_legal_cards()
 
                 if np.sum(predicted_Q) == 0: # When all legal moves have a Q value of 0
                     print("All legal moves have Q-values of 0. Choosing a random action.")
