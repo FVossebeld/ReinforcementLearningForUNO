@@ -84,7 +84,6 @@ def game(models, model_names):
                 _, _, game_finished, step_info = env.step(action)
                 last_move = time.time()
 
-
                 turn = step_info['turn']
                 player_moves[turn] += 1
                 player_status = step_info['player']
@@ -95,12 +94,11 @@ def game(models, model_names):
                         game_messages.append((time.time(), f'{player_names[turn]} eliminated due to illegal move.'))
                     elif player_status == 2:
                         print(f'{player_names[turn]} has finished!')
-                        # print(turn)
-                        # print(player_names)
                         game_winners.append(player_names[turn])
                         game_moves.append(player_moves[turn])
                     del player_types[turn]
                     del player_names[turn]
+                    del player_moves[turn]
 
                 # update game screen once after game has finished
                 if game_finished:
@@ -113,20 +111,14 @@ def game(models, model_names):
     return(game_winners, game_moves, time.time())
 
 
-
-
-def main():
-    # Define the number of mathes being played
-    matches = 1000
-
+def init_models(argv):
     # Initialize models
     model_B = keras.models.load_model('Agents/Agent_b.h5')
     model_S1 = keras.models.load_model('Agents/model-S1-8000.h5')
     model_S2 = keras.models.load_model('Agents/model-S2-8000.h5')
     model_S3 = keras.models.load_model('Agents/model-S3-8000.h5')
     model_S4 = keras.models.load_model('Agents/model-S4-8000.h5')
-    
-    # Initialize arrays with all models and all model names
+
     all_model_names = ["B", "S1", "S2", "S3", "S4"]
     all_models = [model_B, model_S1, model_S2, model_S3, model_S4]
     
@@ -135,13 +127,13 @@ def main():
     model_names = []
 
     # Check wich models are given as user input and make sure they are used for the game
-    if len(sys.argv) != 5:
+    if len(argv) != 5:
         print("no propper number of commands (of 4) are given: <model1> <model2> <model3> <model4>")
         quit
     else:
         for i in range (1, 5, 1):
             for j in range(5):
-                if sys.argv [i] == all_model_names[j]:
+                if argv [i] == all_model_names[j]:
                     print(all_model_names[j])
                     models.append(all_models[j])
                     model_names.append(all_model_names[j])
@@ -149,25 +141,41 @@ def main():
             print("no propper model names are given as input: B, S1, S2, S3, S4")
             quit
 
+    return (models, model_names)
+
+
+def shuffle_models (models, model_names):
+    # Randomly arange the order of the players (for fairer games)
+    indices = [0, 1, 2, 3]
+    random.shuffle(indices)
+
+    models_input = [models[i] for i in indices]
+    models_names_input = [model_names[i] for i in indices]
+    return (models_input, models_names_input)
+    
+
+
+
+def main():
+    # Define the number of mathes being played
+    matches = 2
+
+    models, model_names = init_models(sys.argv)
+
     # Initialize dataframe for storage of results
     results_df = pd.DataFrame({"1st":[], "2nd":[], "3rd":[], "4th":[], 
                                "1st_moves":[], "2nd_moves":[], "3rd_moves":[], "4th_moves":[],
                                "time":[]
                                })
     
-
     # Itterate over all matches
     for _ in range(matches):
         
-        # Randomly arange the order of the players (for fairer games)
-        indices = [0, 1, 2, 3]
-        random.shuffle(indices)
-
-        models_input = [models[i] for i in indices]
-        models_names_input = [model_names[i] for i in indices]
+        # Shuffle the order of the models
+        models_input, model_names_input = shuffle_models(models, model_names)
         
         # Play the game
-        rankings, moves, time = game(models_input, models_names_input)
+        rankings, moves, time = game(models_input, model_names_input)
         
         # Append the results of the game
         new_row = {"1st":rankings[0], "2nd":rankings[1], "3rd":rankings[2], "4th":rankings[3], 
@@ -181,7 +189,6 @@ def main():
     print('Tournament completed. Results saved to tournament_results.csv')
 
     
-
 if __name__ == '__main__':
     main()
 
