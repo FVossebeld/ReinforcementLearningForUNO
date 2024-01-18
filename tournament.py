@@ -117,7 +117,7 @@ def game(models, model_names):
 
 def main():
     # Define the number of mathes being played
-    matches = 3
+    matches = 1000
 
     # Initialize models
     model_B = keras.models.load_model('Agents/Agent_b.h5')
@@ -134,23 +134,20 @@ def main():
     models = []
     model_names = []
 
-    # Check wich models are given as user input and make sure they are used for the gaem
+    # Check wich models are given as user input and make sure they are used for the game
     if len(sys.argv) != 5:
         print("no propper number of commands (of 4) are given: <model1> <model2> <model3> <model4>")
-        print("standard game is ran namely S1 S2 S3 S4")
-        models = [model_S1, model_S2, model_S3, model_S4]
-        model_names = ["S1", "S2", "S3", "S4"]
+        quit
     else:
         for i in range (1, 5, 1):
             for j in range(5):
-                if sys.argv [j] == all_model_names[j]:
+                if sys.argv [i] == all_model_names[j]:
+                    print(all_model_names[j])
                     models.append(all_models[j])
                     model_names.append(all_model_names[j])
         if len(models) != 4:
             print("no propper model names are given as input: B, S1, S2, S3, S4")
-            print("standard game is ran namely S1 S2 S3 S4")
-            models = [model_S1, model_S2, model_S3, model_S4]
-            model_names = ["S1", "S2", "S3", "S4"]
+            quit
 
     # Initialize dataframe for storage of results
     results_df = pd.DataFrame({"1st":[], "2nd":[], "3rd":[], "4th":[], 
@@ -166,18 +163,20 @@ def main():
         indices = [0, 1, 2, 3]
         random.shuffle(indices)
 
-        # Herschik beide arrays op basis van de geschudde indices
         models_input = [models[i] for i in indices]
         models_names_input = [model_names[i] for i in indices]
         
+        # Play the game
         rankings, moves, time = game(models_input, models_names_input)
-        # print(rankings)
+        
+        # Append the results of the game
         new_row = {"1st":rankings[0], "2nd":rankings[1], "3rd":rankings[2], "4th":rankings[3], 
-                    "1st_moves":moves[0], "2nd_moves":moves[1], "3rd_moves":moves[2], "4th_moves":moves[3],
+                    "1st_moves":int(moves[0]), "2nd_moves":int(moves[1]), "3rd_moves":int(moves[2]), "4th_moves":int(moves[3]),
                     "time":time
                     }
         results_df = results_df.append(new_row, ignore_index=True)
 
+    # Write the results of the tournament to a CSV file
     results_df.to_csv('tournament_results.csv', index=True)
     print('Tournament completed. Results saved to tournament_results.csv')
 
