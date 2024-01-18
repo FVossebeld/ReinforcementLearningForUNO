@@ -154,8 +154,6 @@ def shuffle_models (models, model_names):
     return (models_input, models_names_input)
     
 
-
-
 def main():
     # Define the number of mathes being played
     matches = 2
