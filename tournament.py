@@ -156,7 +156,7 @@ def shuffle_models (models, model_names):
 
 def main():
     # Define the number of mathes being played
-    matches = 2
+    matches = 1000
 
     models, model_names = init_models(sys.argv)
 
@@ -181,6 +181,9 @@ def main():
                     "time":time
                     }
         results_df = results_df.append(new_row, ignore_index=True)
+
+        if _%5 == 0:
+            results_df.to_csv('tournament_results.csv', index=True)
 
     # Write the results of the tournament to a CSV file
     results_df.to_csv('tournament_results.csv', index=True)
