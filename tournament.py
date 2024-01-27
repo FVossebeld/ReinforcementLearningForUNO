@@ -113,7 +113,7 @@ def game(models, model_names):
 
 def init_models(argv):
     # Initialize models
-    model_B = keras.models.load_model('Agents/Agent_b.h5')
+    model_B = keras.models.load_model('Agents/Agent_B.h5')
     model_S1 = keras.models.load_model('Agents/model-S1-8000.h5')
     model_S2 = keras.models.load_model('Agents/model-S2-8000.h5')
     model_S3 = keras.models.load_model('Agents/model-S3-8000.h5')
@@ -180,7 +180,7 @@ def main():
                     "1st_moves":int(moves[0]), "2nd_moves":int(moves[1]), "3rd_moves":int(moves[2]), "4th_moves":int(moves[3]),
                     "time":time
                     }
-        results_df = results_df.append(new_row, ignore_index=True)
+        results_df = results_df._append(new_row, ignore_index=True)
 
         if _%5 == 0:
             results_df.to_csv('tournament_results.csv', index=True)
